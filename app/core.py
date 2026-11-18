@@ -1,6 +1,7 @@
 """Your code. One stub per milestone; build them in order and keep each one small."""
 
 import re
+from collections import Counter
 
 
 # --- Milestone 1: Prepare a text corpus of short stories.
@@ -26,8 +27,24 @@ def tokenize(text):
 
 # --- Milestone 2: Implement n-gram counting and maximum-likelihood probabilities.
 # Hint: Apply n-gram model and frequency counting.
-def milestone_2():  # TODO(milestone 2)
-    raise NotImplementedError("TODO(milestone 2)")
+def count_ngrams(tokens, n=2):
+    """Count every n-gram, and every context (the first n-1 words of each n-gram)."""
+    ngram_counts = Counter()
+    context_counts = Counter()
+    for i in range(len(tokens) - n + 1):
+        ngram = tuple(tokens[i:i + n])
+        ngram_counts[ngram] += 1
+        context_counts[ngram[:-1]] += 1
+    return ngram_counts, context_counts
+
+
+def mle_probability(word, context, ngram_counts, context_counts):
+    """P(word | context) = count(context + word) / count(context)."""
+    context = tuple(context)
+    total = context_counts[context]
+    if total == 0:
+        return 0.0
+    return ngram_counts[context + (word,)] / total
 
 
 # --- Milestone 3: Add add-k smoothing to handle unseen n-grams.
