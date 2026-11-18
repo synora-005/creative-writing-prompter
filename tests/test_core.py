@@ -11,6 +11,7 @@ from app.core import (
     get_vocab,
     smoothed_probability,
     generate_text,
+    suggest_next_words,
 )
 
 
@@ -79,6 +80,13 @@ def test_milestone_4():
 
 
 # Milestone 5: Create a CLI interface for users to input text and get suggestions.
-@pytest.mark.skip(reason="remove this line when you start milestone 5")
 def test_milestone_5():
-    raise NotImplementedError("write the test for milestone 5")
+    tokens = tokenize("the cat sat. the cat sat. the dog ran.")
+    ngram_counts, context_counts = count_ngrams(tokens, 2)
+    vocab = get_vocab(tokens)
+
+    suggestions = suggest_next_words("the", ngram_counts, context_counts, vocab,
+                                     n=2, k=0.001, top=2)
+    words = [w for w, p in suggestions]
+    assert words == ["cat", "dog"]           # "cat" follows "the" twice, "dog" once
+    assert suggestions[0][1] > suggestions[1][1]

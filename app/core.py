@@ -73,6 +73,15 @@ def detokenize(words):
     return text[:1].upper() + text[1:]
 
 
+def prompt_context(prompt, n):
+    """Turn typed words into the context the model looks at (the last n-1 tokens).
+    Returns the context and the list of words found in the prompt."""
+    context = ("</s>",) * (n - 2) + ("<s>",)  # the start of a sentence
+    words = re.findall(r"[a-z']+|[.,!?;]", prompt.lower())
+    context = (context + tuple(words))[-(n - 1):]
+    return context, words
+
+
 def generate_text(ngram_counts, context_counts, vocab, n=2, k=0.1,
                   max_words=30, prompt="", seed=None):
     """Generate text one word at a time by sampling from the smoothed model.
@@ -84,10 +93,7 @@ def generate_text(ngram_counts, context_counts, vocab, n=2, k=0.1,
     candidates = sorted(vocab - {"<s>"})  # sorted so a seed always gives the same result
     vocab_size = len(vocab)
 
-    # what comes "before" the first word: the start of a sentence
-    context = ("</s>",) * (n - 2) + ("<s>",)
-    words = re.findall(r"[a-z']+|[.,!?;]", prompt.lower())
-    context = (context + tuple(words))[-(n - 1):]
+    context, words = prompt_context(prompt, n)
 
     generated = list(words)
     for _ in range(max_words):
@@ -105,5 +111,21 @@ def generate_text(ngram_counts, context_counts, vocab, n=2, k=0.1,
 
 # --- Milestone 5: Create a CLI interface for users to input text and get suggestions.
 # Hint: Build a command-line interface for user interaction.
-def milestone_5():  # TODO(milestone 5)
-    raise NotImplementedError("TODO(milestone 5)")
+def build_model(corpus_path, n=2):
+    """Load the corpus and return everything the model needs."""
+    tokens = tokenize(load_text(corpus_path))
+    ngram_counts, context_counts = count_ngrams(tokens, n)
+    return ngram_counts, context_counts, get_vocab(tokens)
+
+
+def suggest_next_words(prompt, ngram_counts, context_counts, vocab, n=2, k=0.001, top=5):
+    """Return the `top` most likely next words as (word, probability) pairs."""
+    context, _ = prompt_context(prompt, n)
+    vocab_size = len(vocab)
+    scored = [
+        (w, smoothed_probability(w, context, ngram_counts, context_counts, vocab_size, k))
+        for w in vocab
+        if w != "<s>"
+    ]
+    scored.sort(key=lambda pair: pair[1], reverse=True)
+    return scored[:top]
