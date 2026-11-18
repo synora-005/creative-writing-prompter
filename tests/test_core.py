@@ -10,6 +10,7 @@ from app.core import (
     mle_probability,
     get_vocab,
     smoothed_probability,
+    generate_text,
 )
 
 
@@ -57,9 +58,24 @@ def test_milestone_3():
 
 
 # Milestone 4: Develop a function to generate text by sampling from the model.
-@pytest.mark.skip(reason="remove this line when you start milestone 4")
 def test_milestone_4():
-    raise NotImplementedError("write the test for milestone 4")
+    tokens = tokenize("the cat sat. the cat sat.")
+    ngram_counts, context_counts = count_ngrams(tokens, 2)
+    vocab = get_vocab(tokens)
+
+    # the text only ever says "the cat sat.", so with tiny k that is what we get
+    text = generate_text(ngram_counts, context_counts, vocab, n=2, k=1e-9, seed=0)
+    assert text == "The cat sat."
+
+    # a prompt is continued
+    text = generate_text(ngram_counts, context_counts, vocab, n=2, k=1e-9,
+                         prompt="the cat", seed=0)
+    assert text == "The cat sat."
+
+    # max_words stops the generation early
+    text = generate_text(ngram_counts, context_counts, vocab, n=2, k=1.0,
+                         max_words=3, seed=1)
+    assert len(text.replace(".", " .").split()) <= 3
 
 
 # Milestone 5: Create a CLI interface for users to input text and get suggestions.

@@ -1,17 +1,12 @@
-from app.core import (
-    load_text, tokenize, count_ngrams,
-    mle_probability, get_vocab, smoothed_probability,
-)
+from app.core import load_text, tokenize, count_ngrams, get_vocab, generate_text
 
 tokens = tokenize(load_text("data/corpus.txt"))
-ngram_counts, context_counts = count_ngrams(tokens, 2)
-v = len(get_vocab(tokens))
-print("Vocabulary size:", v)
+vocab = get_vocab(tokens)
 
-for k in [1.0, 0.1, 0.01]:
-    p = smoothed_probability("watson", ["dr"], ngram_counts, context_counts, v, k)
-    print(f"k={k}: P(watson | dr) = {p:.6f}")
-
-for k in [1.0, 0.1, 0.01]:
-    p = smoothed_probability("holmes", ["sherlock"], ngram_counts, context_counts, v, k)
-    print(f"k={k}: P(holmes | sherlock) = {p:.4f}")
+for n in [2, 3]:
+    ngram_counts, context_counts = count_ngrams(tokens, n)
+    for k in [0.01, 0.001, 0.0001]:
+        print(f"--- {n}-gram model, k={k} ---")
+        for seed in range(2):
+            print(generate_text(ngram_counts, context_counts, vocab, n=n, k=k, seed=seed))
+        print()

@@ -1,5 +1,6 @@
 """Your code. One stub per milestone; build them in order and keep each one small."""
 
+import random
 import re
 from collections import Counter
 
@@ -65,8 +66,41 @@ def smoothed_probability(word, context, ngram_counts, context_counts, vocab_size
 
 # --- Milestone 4: Develop a function to generate text by sampling from the model.
 # Hint: Utilize probability distribution sampling.
-def milestone_4():  # TODO(milestone 4)
-    raise NotImplementedError("TODO(milestone 4)")
+def detokenize(words):
+    """Turn a list of tokens back into readable text."""
+    text = " ".join(words)
+    text = re.sub(r" ([.,!?;])", r"\1", text)  # no space before punctuation
+    return text[:1].upper() + text[1:]
+
+
+def generate_text(ngram_counts, context_counts, vocab, n=2, k=0.1,
+                  max_words=30, prompt="", seed=None):
+    """Generate text one word at a time by sampling from the smoothed model.
+
+    Stops when the model picks </s> or after max_words words.
+    Use the same seed to get the same text again.
+    """
+    rng = random.Random(seed)
+    candidates = sorted(vocab - {"<s>"})  # sorted so a seed always gives the same result
+    vocab_size = len(vocab)
+
+    # what comes "before" the first word: the start of a sentence
+    context = ("</s>",) * (n - 2) + ("<s>",)
+    words = re.findall(r"[a-z']+|[.,!?;]", prompt.lower())
+    context = (context + tuple(words))[-(n - 1):]
+
+    generated = list(words)
+    for _ in range(max_words):
+        weights = [
+            smoothed_probability(w, context, ngram_counts, context_counts, vocab_size, k)
+            for w in candidates
+        ]
+        word = rng.choices(candidates, weights=weights)[0]
+        if word == "</s>":
+            break
+        generated.append(word)
+        context = (context + (word,))[-(n - 1):]
+    return detokenize(generated)
 
 
 # --- Milestone 5: Create a CLI interface for users to input text and get suggestions.
