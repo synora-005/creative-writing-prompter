@@ -49,8 +49,18 @@ def mle_probability(word, context, ngram_counts, context_counts):
 
 # --- Milestone 3: Add add-k smoothing to handle unseen n-grams.
 # Hint: Implement add-k smoothing.
-def milestone_3():  # TODO(milestone 3)
-    raise NotImplementedError("TODO(milestone 3)")
+def get_vocab(tokens):
+    """Return the set of different tokens in the corpus."""
+    return set(tokens)
+
+
+def smoothed_probability(word, context, ngram_counts, context_counts, vocab_size, k=1.0):
+    """P(word | context) with add-k smoothing:
+    (count(context + word) + k) / (count(context) + k * vocab_size)."""
+    context = tuple(context)
+    numerator = ngram_counts[context + (word,)] + k
+    denominator = context_counts[context] + k * vocab_size
+    return numerator / denominator
 
 
 # --- Milestone 4: Develop a function to generate text by sampling from the model.

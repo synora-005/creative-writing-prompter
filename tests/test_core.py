@@ -4,7 +4,13 @@ They start skipped. Remove the `skip` line as you work on each milestone.
 """
 import pytest
 
-from app.core import tokenize, count_ngrams, mle_probability
+from app.core import (
+    tokenize,
+    count_ngrams,
+    mle_probability,
+    get_vocab,
+    smoothed_probability,
+)
 
 
 # Milestone 1: Prepare a text corpus of short stories.
@@ -28,9 +34,26 @@ def test_milestone_2():
 
 
 # Milestone 3: Add add-k smoothing to handle unseen n-grams.
-@pytest.mark.skip(reason="remove this line when you start milestone 3")
 def test_milestone_3():
-    raise NotImplementedError("write the test for milestone 3")
+    tokens = tokenize("the cat sat. the cat ran. the dog sat.")
+    ngram_counts, context_counts = count_ngrams(tokens, 2)
+    vocab = get_vocab(tokens)
+    v = len(vocab)
+
+    # a pair never seen in the text is no longer impossible
+    p_unseen = smoothed_probability("ran", ["dog"], ngram_counts, context_counts, v, k=1.0)
+    assert p_unseen > 0
+
+    # seen pairs follow the formula: (2 + 1) / (3 + 8)
+    p_seen = smoothed_probability("cat", ["the"], ngram_counts, context_counts, v, k=1.0)
+    assert p_seen == pytest.approx(3 / 11)
+
+    # probabilities over the whole vocabulary add up to 1
+    total = sum(
+        smoothed_probability(w, ["the"], ngram_counts, context_counts, v, k=1.0)
+        for w in vocab
+    )
+    assert total == pytest.approx(1.0)
 
 
 # Milestone 4: Develop a function to generate text by sampling from the model.
