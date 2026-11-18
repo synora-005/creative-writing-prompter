@@ -1,9 +1,27 @@
 """Your code. One stub per milestone; build them in order and keep each one small."""
 
+import re
+
+
 # --- Milestone 1: Prepare a text corpus of short stories.
 # Hint: Use text preprocessing and tokenization.
-def milestone_1():  # TODO(milestone 1)
-    raise NotImplementedError("TODO(milestone 1)")
+def load_text(path):
+    """Read a text file and return its contents as one string."""
+    with open(path, encoding="utf-8") as f:
+        return f.read()
+
+
+def tokenize(text):
+    """Lowercase the text and split it into word and punctuation tokens.
+    Each sentence is wrapped in <s> ... </s> markers."""
+    text = text.lower()
+    sentences = re.split(r"(?<=[.!?])\s+", text)
+    tokens = []
+    for sentence in sentences:
+        words = re.findall(r"[a-z']+|[.,!?;]", sentence)
+        if words:
+            tokens += ["<s>"] + words + ["</s>"]
+    return tokens
 
 
 # --- Milestone 2: Implement n-gram counting and maximum-likelihood probabilities.

@@ -4,10 +4,16 @@ They start skipped. Remove the `skip` line as you work on each milestone.
 """
 import pytest
 
+from app.core import tokenize
+
+
 # Milestone 1: Prepare a text corpus of short stories.
-@pytest.mark.skip(reason="remove this line when you start milestone 1")
 def test_milestone_1():
-    raise NotImplementedError("write the test for milestone 1")
+    tokens = tokenize("The cat sat. The dog ran!")
+    assert tokens == [
+        "<s>", "the", "cat", "sat", ".", "</s>",
+        "<s>", "the", "dog", "ran", "!", "</s>",
+    ]
 
 
 # Milestone 2: Implement n-gram counting and maximum-likelihood probabilities.
@@ -32,4 +38,3 @@ def test_milestone_4():
 @pytest.mark.skip(reason="remove this line when you start milestone 5")
 def test_milestone_5():
     raise NotImplementedError("write the test for milestone 5")
-
