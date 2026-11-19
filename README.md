@@ -1,6 +1,6 @@
 # Creative Writing Prompter
 
-[![Built with askThili](https://ask.thili.ai/api/v1/public/projects/mhahk5dj62/badge.svg)](https://ask.thili.ai/b/mhahk5dj62)
+[![Built with askThili](https://msrit.ask.thili.ai/api/v1/public/projects/mhahk5dj62/badge.svg)](https://msrit.ask.thili.ai/b/mhahk5dj62)
 
 This Creative Writing Prompter is a CLI tool designed for aspiring writers to overcome writer's block. It offers context-aware next-word suggestions by sampling from a genre corpus of short stories. The tool's core is a next-word prediction engine, analyzing text to provide contextually relevant word choices.
 
